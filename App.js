@@ -168,7 +168,7 @@ class HelloWorldSceneAR extends Component {
       const scale     = Math.abs(Math.round(coords.z/15));
       const distance  = distanceBetweenPoints(this.state.location, {latitude: item.lat, longitude: item.lng});
       return (
-        <ViroNode scale={[scale, scale, scale]} rotation={[0, 0, 0]} position={[coords.x, 0, coords.z]}>
+        <ViroNode key={item.id} scale={[scale, scale, scale]} rotation={[0, 0, 0]} position={[coords.x, 0, coords.z]}>
           <ViroImage source={{uri: item.icon}} position={[0,1,0]}/>
           <ViroText text={item.title} style={styles.helloWorldTextStyle} />
           <ViroText text={`${Number(distance).toFixed(2)} km away`} style={styles.helloWorldTextStyle} position={[0, -0.75, 0]}/>
