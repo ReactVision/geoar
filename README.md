@@ -28,6 +28,11 @@ This project uses Google Maps Places API and places them around the user in a 3D
 4. `npx pod-install` (iOS)
 5. `npx react-native run-android` or `npx react-native run-ios`
 
+# Additional setup
+
+This demo requires a Google Maps API key, you can get one from Google Cloud Platform.
+After getting a key, set it on the `MAPS_API_KEY` constant on App.js line 25.
+
 # Need help? Or want to contribute?
 
 <a href="https://discord.gg/YfxDBGTxvG">
