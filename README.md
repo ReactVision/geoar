@@ -22,8 +22,8 @@ This project uses Google Maps Places API and places them around the user in a 3D
 
 # Installing
 
-1. `git clone https://github.com/ViroCommunity/GeoAR-Testbed.git`
-2. `cd GeoAR-Testbed`
+1. `git clone https://github.com/ViroCommunity/geoar.git`
+2. `cd geoar`
 3. `npm install`
 4. `npx pod-install` (iOS)
 5. `npx react-native run-android` or `npx react-native run-ios`
