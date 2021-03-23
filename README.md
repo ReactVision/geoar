@@ -30,7 +30,7 @@ This project uses Google Maps Places API and places them around the user in a 3D
 
 # Additional setup
 
-This demo requires a Google Maps API key, you can get one from Google Cloud Platform.
+This demo requires a Google Maps Places API key, you can get one from Google Cloud Platform, even it's a paid API Google offers $200 USD off.
 After getting a key, set it on the `MAPS_API_KEY` constant on App.js line 25.
 
 # Need help? Or want to contribute?
