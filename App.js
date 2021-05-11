@@ -1,28 +1,28 @@
 import React, { Component } from 'react';
-import {StyleSheet, PermissionsAndroid, Platform, ToastAndroid} from 'react-native';
+import {StyleSheet, Platform, ToastAndroid} from 'react-native';
 import {
   ViroImage,
   ViroNode,
   ViroARScene,
   ViroText,
   ViroConstants,
-  ViroARSceneNavigator
+  ViroARSceneNavigator,
+  ViroFlexView
 } from 'react-viro';
 import Geolocation from '@react-native-community/geolocation';
 import CompassHeading from 'react-native-compass-heading';
-
+import {requestMultiple, PERMISSIONS, RESULTS} from 'react-native-permissions';
 
 const Toast = (message) => {
   ToastAndroid.showWithGravityAndOffset(
     message,
     ToastAndroid.LONG,
     ToastAndroid.BOTTOM,
-    25,
-    50
+    25, 50
   );
 }
 
-const MAPS_API_KEY = 'your-api-key'
+const MAPS_API_KEY = ''
 const PlacesAPIURL = (lat,lng) => `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=50&key=${MAPS_API_KEY}`;
 
 const distanceBetweenPoints = (p1, p2) => {
@@ -46,6 +46,7 @@ class HelloWorldSceneAR extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      cameraReady:        false,
       locationReady:      false,
       location:           undefined,
       nearbyPlaces:       [],
@@ -62,22 +63,28 @@ class HelloWorldSceneAR extends Component {
   }
 
   componentDidMount(){
-    PermissionsAndroid.check('android.permission.ACCESS_FINE_LOCATION')
-    .then((result) => {
-      if(result){
-        this.getCurrentLocation();
+    const permissions = Platform.select({
+      ios:      [PERMISSIONS.IOS.CAMERA, PERMISSIONS.IOS.LOCATION_WHEN_IN_USE],
+      android:  [PERMISSIONS.ANDROID.CAMERA, PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION]
+    });
+
+    requestMultiple(permissions).then((statuses) => {
+      if(Platform.OS == 'ios'){
+        console.log('Camera', statuses[PERMISSIONS.IOS.CAMERA]);
+        console.log('Location', statuses[PERMISSIONS.IOS.LOCATION_WHEN_IN_USE]);
+        this.setState({
+          locationReady:  statuses[PERMISSIONS.IOS.LOCATION_WHEN_IN_USE] === RESULTS.GRANTED,
+          cameraReady:    statuses[PERMISSIONS.IOS.CAMERA] === RESULTS.GRANTED
+        }, this.getCurrentLocation);
       }
       else{
-        PermissionsAndroid.request('android.permission.ACCESS_FINE_LOCATION')
-        .then((granted) => {
-          if(granted){
-            this.getCurrentLocation();
-          }
-        })
+        console.log('Camera', statuses[PERMISSIONS.ANDROID.CAMERA]);
+        console.log('Location', statuses[PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION]);
+        this.setState({
+          locationReady:  statuses[PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION] === RESULTS.GRANTED,
+          cameraReady:    statuses[PERMISSIONS.ANDROID.CAMERA] === RESULTS.GRANTED
+        }, this.getCurrentLocation);
       }
-    })
-    .catch((error) => {
-
     });
 
     CompassHeading.start(3, (heading) => {
@@ -93,14 +100,15 @@ class HelloWorldSceneAR extends Component {
   }
 
   getCurrentLocation = () => {
-    const geoSuccess = (result) => {
-      this.setState({
-        location:       result.coords,
-        locationReady:  true
-      }, this.getNearbyPlaces);
-    };
-
-    this.listener = Geolocation.watchPosition(geoSuccess, (error) => {}, {distanceFilter: 10});
+    if(this.state.cameraReady && this.state.locationReady){
+      const geoSuccess = (result) => {
+        this.setState({
+          location:       result.coords
+        }, this.getNearbyPlaces);
+      };
+  
+      this.listener = Geolocation.watchPosition(geoSuccess, (error) => {}, {distanceFilter: 10});
+    }
   }
 
   latLongToMerc = (latDeg,  longDeg) => {
@@ -141,6 +149,7 @@ class HelloWorldSceneAR extends Component {
     fetch(URL)
     .then((response) => response.json())
     .then((responseJson) => {
+      //console.log(responseJson)
       if(responseJson.status === 'OK'){
         const places = responseJson.results.map((rawPlace) => {
           return {
@@ -152,6 +161,9 @@ class HelloWorldSceneAR extends Component {
           }
         });
         this.setState({nearbyPlaces: places});
+      }
+      else{
+        console.warn(responseJson.status)
       }
     })
     .catch((error) => {
@@ -181,7 +193,7 @@ class HelloWorldSceneAR extends Component {
   render() {
     return (
       <ViroARScene onTrackingUpdated={this._onInitialized} >
-        {(this.state.locationReady) && this.placeARObjects()}
+        {(this.state.locationReady && this.state.cameraReady) && this.placeARObjects()}
       </ViroARScene>
     );
   }
@@ -212,6 +224,7 @@ export default class App extends React.Component{
 	render(){
 			return(
 				<ViroARSceneNavigator
+          worldAlignment={'GravityAndHeading'}
 					autofocus={true}
 					initialScene={{
 						scene: HelloWorldSceneAR,
