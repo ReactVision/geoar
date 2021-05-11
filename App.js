@@ -22,7 +22,7 @@ const Toast = (message) => {
   );
 }
 
-const MAPS_API_KEY = ''
+const MAPS_API_KEY = 'your-api-key'
 const PlacesAPIURL = (lat,lng) => `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=50&key=${MAPS_API_KEY}`;
 
 const distanceBetweenPoints = (p1, p2) => {
@@ -181,9 +181,11 @@ class HelloWorldSceneAR extends Component {
       const distance  = distanceBetweenPoints(this.state.location, {latitude: item.lat, longitude: item.lng});
       return (
         <ViroNode key={item.id} scale={[scale, scale, scale]} rotation={[0, 0, 0]} position={[coords.x, 0, coords.z]}>
-          <ViroImage source={{uri: item.icon}} position={[0,1,0]}/>
-          <ViroText text={item.title} style={styles.helloWorldTextStyle} />
-          <ViroText text={`${Number(distance).toFixed(2)} km away`} style={styles.helloWorldTextStyle} position={[0, -0.75, 0]}/>
+          <ViroFlexView style={{alignItems: 'center', justifyContent: 'center'}}>
+            <ViroText width={4} height={0.5} text={item.title} style={styles.helloWorldTextStyle} />
+            <ViroText width={4} height={0.5} text={`${Number(distance).toFixed(2)} km`} style={styles.helloWorldTextStyle} position={[0, -0.75, 0]}/>
+            <ViroImage width={1} height={1} source={{uri: item.icon}} position={[0,-1.5,0]}/>
+          </ViroFlexView>
         </ViroNode>
       )
     });
