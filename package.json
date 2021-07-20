@@ -12,7 +12,7 @@
   "dependencies": {
     "@react-native-community/geolocation": "^2.0.2",
     "react": "16.13.1",
-    "react-native": "0.63.4",
+    "react-native": "0.64.1",
     "react-native-compass-heading": "^1.0.2",
     "react-native-permissions": "^3.0.3",
     "react-viro": "git+https://github.com/ViroCommunity/viro"
